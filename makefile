@@ -12,5 +12,5 @@ test:
 	g++ -std=c++11 -fpermissive -I/usr/local/include -L/usr/local/lib -I$(PYTHON_INC) -I$(NUMPY_CINC) mpl_interface.cpp -o mpl_test.x -lmpl -lpython2.7
 
 install:
-	mv libmpl_interface.so /usr/local/lib
-	cp mpl_interface.hpp /usr/local/include
+	mv libmpl_interface.so /usr/lib64
+	cp mpl_interface.hpp /usr/include

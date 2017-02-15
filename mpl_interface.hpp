@@ -26,6 +26,6 @@ typedef struct trigger_data{
 	float* ft_data;
 } trigger_data;
 
-void imshow_save(double *ar, int nrow, int ncol, PyObject* mpl, char* fname);
+void imshow_save(double *ar, int nrow, int ncol, PyObject* mpl, std::string fname);
 void imshow_show(double *ar, int nrow, int ncol, PyObject* mpl);
 void multipanel_transient_save(double *ft, double *dmt, int ntdm, PyObject *mpl, trigger_data td, search_data sd);
