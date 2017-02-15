@@ -19,6 +19,11 @@ typedef struct trigger_data{
 	int t_ind;
 	int dm_ind;
 	double snr;
+	int nt_trig;
+	int ndm_trig;
+	int nf_trig;
+	float* dm_data;
+	float* ft_data;
 } trigger_data;
 
 void imshow_save(double *ar, int nrow, int ncol, PyObject* mpl, char* fname);

@@ -255,11 +255,27 @@ void multipanel_transient_save(double *ft, double *dmt, int ntdm, PyObject *mpl,
 // 	imshow_save(dat,100,100,mpl,"mytest.png");
 // }
 
+float* d_to_f(double* in, int len){
+	float* ret = new float[len];
+	for(int i = 0; i < len; i++){
+		ret[i] = (float) in[i];
+	}
+	return ret;
+}
+
 void test_multipanel(PyObject *mpl)
 {
 	int width = 10;
 	search_data sd = {800.0,400.0,1024,10.0,1024,200.0,1024};
-	trigger_data td = {"test_trigger.png", width,512,1024,8.0};
+	trigger_data td;
+	td.fname = std::string("test_trigger.png");
+	td.t_width = width;
+	td.t_ind = 512;
+	td.dm_ind = 1024;
+	td.snr = 8.0f;
+	td.nt_trig = 1024;
+	td.ndm_trig = 1024;
+	td.nf_trig = 1024;
 	double *ft = randArray(0.0,1.0,1024 * 1024);
 	double *dmt = zeros_d(1024 * 1024);
 	double dt = sd.t_frame/((double) sd.nt);
@@ -274,6 +290,9 @@ void test_multipanel(PyObject *mpl)
 			ft[i * 1024 + 512 + delay + j] += 1.0;
 		}
 	}
+
+	td.dm_data = d_to_f(dmt,1024 * 1024);
+	td.ft_data = d_to_f(ft,1024 * 1024);
 	multipanel_transient_save(ft,dmt,1024,mpl,td,sd);
 }
 
