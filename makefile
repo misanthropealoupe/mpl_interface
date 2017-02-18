@@ -1,6 +1,6 @@
 SHELL = /bin/sh
 PYTHON_INC = /usr/include/python2.7
-NUMPY_CINC = /usr/lib64/python2.7/site-packages/numpy/core/include
+NUMPY_CINC = /usr/local/lib/python2.7/dist-packages/numpy/core/include
 
 .SUFFIXES:
 .SUFFIXES: .cpp .hpp .o .so

@@ -70,12 +70,12 @@ void imshow_show(double *ar, int nrow, int ncol, PyObject* mpl)
 	PyObject* showFun = PyObject_GetAttrString(mpl,(char*)"show");
 	PyObject_CallObject(showFun,noargs);
 }
-void imshow_save(double *ar, int nrow, int ncol, PyObject* mpl, char* fname)
+void imshow_save(double *ar, int nrow, int ncol, PyObject* mpl, std::string fname)
 {
 	PyObject* imshowFun = PyObject_GetAttrString(mpl,(char*)"imshow");
 	PyObject* a = getPython2DArray(ar,nrow,ncol);
 	PyObject* args = PyTuple_Pack(1,a);
-	PyObject* saveargs = PyTuple_Pack(1,PyString_FromString(fname));
+	PyObject* saveargs = PyTuple_Pack(1,PyString_FromString(fname.c_str()));
 	PyObject* result = PyObject_CallObject(imshowFun,args);
 	PyObject* saveFun = PyObject_GetAttrString(mpl,(char*)"savefig");
 	PyObject_CallObject(saveFun,saveargs);
@@ -178,6 +178,13 @@ PyObject *getNumpyTickLabels(PyArrayObject* locs, int indLen, int decimalLen, do
 	delete[] formatString;
 	delete[] formatString1;
 	return labels;
+}
+
+void plot_save(double* data, int len, std::string fname, PyObject *mpl)
+{
+	call(mpl,"plot",PyTuple_Pack(1,getPythonArray(data,len)));
+	call(mpl, "savefig", PyTuple_Pack(1,PyString_FromString(fname.c_str())));
+	call(mpl, "close", NOARGS);
 }
 
 void multipanel_transient_save(double *ft, double *dmt, int ntdm, PyObject *mpl, trigger_data td, search_data sd)

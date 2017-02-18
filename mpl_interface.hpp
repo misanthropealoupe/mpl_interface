@@ -9,6 +9,9 @@ typedef struct search_data{
 	int nt;
 	double maxdm;
 	int ndm;
+	double dt;
+	double df;
+	double ddm;
 } search_data;
 
 typedef struct trigger_data{
@@ -24,8 +27,11 @@ typedef struct trigger_data{
 	int nf_trig;
 	float* dm_data;
 	float* ft_data;
+	int* dm_dim;
+	int* ft_dim;
 } trigger_data;
 
-void imshow_save(double *ar, int nrow, int ncol, PyObject* mpl, char* fname);
+void imshow_save(double *ar, int nrow, int ncol, PyObject* mpl, std::string fname);
 void imshow_show(double *ar, int nrow, int ncol, PyObject* mpl);
 void multipanel_transient_save(double *ft, double *dmt, int ntdm, PyObject *mpl, trigger_data td, search_data sd);
+void plot_save(double* data, int len, std::string fname, PyObject *mpl);
