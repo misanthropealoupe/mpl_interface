@@ -1,4 +1,5 @@
 #include "mpl_interface.hpp"
+#include "dedisp-contain.hpp"
 #include "numpy/arrayobject.h"
 #include <string>
 #include <tuple>
@@ -70,14 +71,39 @@ void imshow_show(double *ar, int nrow, int ncol, PyObject* mpl)
 	PyObject* showFun = PyObject_GetAttrString(mpl,(char*)"show");
 	PyObject_CallObject(showFun,noargs);
 }
-void imshow_save(double *ar, int nrow, int ncol, PyObject* mpl, std::string fname)
+
+void imshow_save_simple(double *ar, int nrow, int ncol, std::string fname)
 {
-	PyObject* imshowFun = PyObject_GetAttrString(mpl,(char*)"imshow");
+	if(Py_IsInitialized() == 0){
+		Py_Initialize();
+	}
+	PyObject* mplBaseString = PyString_FromString((char*)"matplotlib");
+	PyObject* mplBase = PyImport_Import(mplBaseString);
+	call(mplBase, "use", PyTuple_Pack(1,PyString_FromString("Agg")));
+	PyObject* mplString = PyString_FromString((char*)"matplotlib.pyplot");
+	PyObject* mpl = PyImport_Import(mplString);
+
+	imshow_save(ar,nrow,ncol,mpl,fname,true);
+	//Py_Finalize();
+}
+
+void imshow_save(double *ar, int nrow, int ncol, PyObject* mpl, std::string fname, bool colorbar)
+{
+	PyObject* cbarfun = PyObject_GetAttrString(mpl, (char*)"colorbar");
+	PyObject* axFun = PyObject_GetAttrString(mpl,(char*)"gca");
+	PyObject* ax = PyObject_CallObject(axFun,NOARGS);
+	PyObject* imshowFun = PyObject_GetAttrString(ax,(char*)"imshow");
 	PyObject* a = getPython2DArray(ar,nrow,ncol);
 	PyObject* args = PyTuple_Pack(1,a);
 	PyObject* saveargs = PyTuple_Pack(1,PyString_FromString(fname.c_str()));
 	PyObject* result = PyObject_CallObject(imshowFun,args);
+
+	if(colorbar){	
+		PyObject_CallObject(cbarfun,PyTuple_Pack(1,result));
+	}
+
 	PyObject* saveFun = PyObject_GetAttrString(mpl,(char*)"savefig");
+	std::cout << "saving plot\n";
 	PyObject_CallObject(saveFun,saveargs);
 	PyObject* closeFun = PyObject_GetAttrString(mpl,(char*)"close");
 	PyObject_CallObject(closeFun,NOARGS);
@@ -182,9 +208,26 @@ PyObject *getNumpyTickLabels(PyArrayObject* locs, int indLen, int decimalLen, do
 
 void plot_save(double* data, int len, std::string fname, PyObject *mpl)
 {
-	call(mpl,"plot",PyTuple_Pack(1,getPythonArray(data,len)));
+	//PyObject *keywords = Py_BuildValue("{s:O}", "dpi", Py_BuildValue("i", 300));
+	//callKey(mpl,"figure",NOARGS,keywords);
+	call(mpl,"figure",NOARGS);
+	call(mpl,"plot", PyTuple_Pack(1,getPythonArray(data,len)));
 	call(mpl, "savefig", PyTuple_Pack(1,PyString_FromString(fname.c_str())));
 	call(mpl, "close", NOARGS);
+}
+
+void plot_save_simple(double* data, int len, std::string fname)
+{
+	if(Py_IsInitialized() == 0){
+		Py_Initialize();
+	}	
+	PyObject* mplBaseString = PyString_FromString((char*)"matplotlib");
+	PyObject* mplBase = PyImport_Import(mplBaseString);
+	call(mplBase, "use", PyTuple_Pack(1,PyString_FromString("Agg")));
+	PyObject* mplString = PyString_FromString((char*)"matplotlib.pyplot");
+	PyObject* mpl = PyImport_Import(mplString);
+	plot_save(data,len,fname,mpl);
+	//Py_Finalize();
 }
 
 void multipanel_transient_save(double *ft, double *dmt, int ntdm, PyObject *mpl, trigger_data td, search_data sd)
@@ -256,6 +299,28 @@ void multipanel_transient_save(double *ft, double *dmt, int ntdm, PyObject *mpl,
 	call(mpl, "close", NOARGS);
 }
 
+void multipanel_transient_save_simple(double *ft, double *dmt, double f0, double f1, int nf, double t_chunk, int nt, double maxdm, int ndm, trigger_data td)
+{
+	search_data sd;
+	sd.nt = nt;
+	sd.t_frame = t_chunk;
+	sd.dt = (double) (t_chunk/((double) nt));
+	sd.ndm = ndm;
+	sd.maxdm = maxdm;
+	sd.ddm = (double) (maxdm/((double) ndm));
+	sd.nf = nf;
+	sd.f0 = f0;
+	sd.f1 = f1;
+	sd.df = (double) ((f1 - f0)/((double) nf));
+
+	if(Py_IsInitialized() == 0){
+		Py_Initialize();
+	}
+	PyObject* mplString = PyString_FromString((char*)"matplotlib.pyplot");
+	PyObject* mpl = PyImport_Import(mplString);
+	multipanel_transient_save(ft,dmt,nt,mpl,td,sd);
+	//Py_Finalize();
+}
 // void test_imshow(PyObject *mpl)
 // {
 // 	double *dat = test_data(100,100);
