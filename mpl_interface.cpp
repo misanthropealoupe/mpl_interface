@@ -74,12 +74,12 @@ void imshow_show(double *ar, int nrow, int ncol, PyObject* mpl)
 
 void imshow_save_simple(double *ar, int nrow, int ncol, std::string fname)
 {
-	if(Py_IsInitialized() == 0){
+	//if(Py_IsInitialized() == 0){
 		Py_Initialize();
-	}
-	PyObject* mplBaseString = PyString_FromString((char*)"matplotlib");
-	PyObject* mplBase = PyImport_Import(mplBaseString);
-	call(mplBase, "use", PyTuple_Pack(1,PyString_FromString("Agg")));
+	//}
+	//PyObject* mplBaseString = PyString_FromString((char*)"matplotlib");
+	//PyObject* mplBase = PyImport_Import(mplBaseString);
+	//call(mplBase, "use", PyTuple_Pack(1,PyString_FromString("Agg")));
 	PyObject* mplString = PyString_FromString((char*)"matplotlib.pyplot");
 	PyObject* mpl = PyImport_Import(mplString);
 
@@ -89,7 +89,6 @@ void imshow_save_simple(double *ar, int nrow, int ncol, std::string fname)
 
 void imshow_save(double *ar, int nrow, int ncol, PyObject* mpl, std::string fname, bool colorbar)
 {
-	PyObject* cbarfun = PyObject_GetAttrString(mpl, (char*)"colorbar");
 	PyObject* axFun = PyObject_GetAttrString(mpl,(char*)"gca");
 	PyObject* ax = PyObject_CallObject(axFun,NOARGS);
 	PyObject* imshowFun = PyObject_GetAttrString(ax,(char*)"imshow");
@@ -99,6 +98,7 @@ void imshow_save(double *ar, int nrow, int ncol, PyObject* mpl, std::string fnam
 	PyObject* result = PyObject_CallObject(imshowFun,args);
 
 	if(colorbar){	
+		PyObject* cbarfun = PyObject_GetAttrString(mpl, (char*)"colorbar");
 		PyObject_CallObject(cbarfun,PyTuple_Pack(1,result));
 	}
 
@@ -107,6 +107,8 @@ void imshow_save(double *ar, int nrow, int ncol, PyObject* mpl, std::string fnam
 	PyObject_CallObject(saveFun,saveargs);
 	PyObject* closeFun = PyObject_GetAttrString(mpl,(char*)"close");
 	PyObject_CallObject(closeFun,NOARGS);
+	Py_CLEAR(args);
+	Py_CLEAR(a);
 }
 
 double* zeros_d(int n)
